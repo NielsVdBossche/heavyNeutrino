@@ -8,16 +8,17 @@ import FWCore.ParameterSet.Config as cms
 #inputFile        = '/store/mc/RunIISummer20UL16MiniAOD/HeavyNeutrino_trilepton_M-200_V-0p01_mu_NLO_TuneCP5_13TeV-madgraph-pythia8/MINIAODSIM/106X_mcRun2_asymptotic_v13-v1/270000/0FBF419A-63DD-FD4D-BC54-EA704B164217.root'
 # inputFile        = 'file:///pnfs/iihe/cms/store/user/lwezenbe/heavyNeutrino/testFiles/store/data/Run2018C/SingleMuon/MINIAOD/12Nov2019_UL2018-v2/100000/08CD0000-EAC8-844F-96C6-A02E7F742007.root'
 # inputFile        = 'file:///pnfs/iihe/cms/store/user/lwezenbe/heavyNeutrino/testFiles/store/data/Run2017D/SingleElectron/MINIAOD/09Aug2019_UL2017-v1/260000/00A5C633-1806-0844-8D65-C31C779A57F6.root'
-inputFile        = 'file:///pnfs/iihe/cms/store/user/lwezenbe/heavyNeutrino/testFiles/store/mc/RunIISummer20UL16MiniAODAPV/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/106X_mcRun2_asymptotic_preVFP_v8-v1/270000/00974EBB-A8B3-4241-80C3-08C750C5838A.root'
+# inputFile        = 'file:///pnfs/iihe/cms/store/user/lwezenbe/heavyNeutrino/testFiles/store/mc/RunIISummer20UL16MiniAODAPV/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/106X_mcRun2_asymptotic_preVFP_v8-v1/270000/00974EBB-A8B3-4241-80C3-08C750C5838A.root'
+inputFile        = 'file:///pnfs/iihe/cms/store/user/nivanden/eft_minis/testing/MINIAODSIMoutput_0.root'
 
 # Other default arguments
 
-nEvents         = 100
+nEvents         = 1
 # extraContent    = 'storeAllTauID'
 # extraContent    = 'storeLheParticles,storeParticleLevel'
 # extraContent    = 'storeJecSources'
 # extraContent    = 'storeJecSources'
-extraContent    = 'storeLheParticles,storeParticleLevel,storeJecSourcesGrouped,storeAllTauID,storePrefireComponents'
+extraContent    = 'storeLheParticles,storeParticleLevel,storeJecSourcesGrouped,storeAllTauID,storePrefireComponents,storeEFTInfo'
 # extraContent    = ''
 
 outputFile      = 'noskim.root' # trilep    --> skim three leptons (basic pt/eta criteria)
@@ -39,7 +40,7 @@ for i in range(1,len(sys.argv)):
 
 isData = not ('SIM' in inputFile or 'heavyNeutrinoMiniAOD' in inputFile)
 is2017 = "Run2017" in inputFile or "17MiniAOD" in inputFile or 'Fall17' in inputFile
-is2018 = "Run2018" in inputFile or "18MiniAOD" in inputFile or 'Autumn18' in inputFile
+is2018 = True # "Run2018" in inputFile or "18MiniAOD" in inputFile or 'Autumn18' in inputFile
 is2016preVFP = "preVFP" in inputFile or "HIPM" in inputFile
 isSUSY = "SMS-T" in inputFile
 isFastSim = 'Fast' in inputFile
@@ -138,7 +139,7 @@ jecL2L3ResidualFilePuppi = jecL2L3ResidualFile.replace('PFchs', 'PFPuppi')
 
 #JEC uncertainty for Puppi:
 jecUncertaintyFilePuppi = jecUncertaintyFile.replace('PFchs', 'PFPuppi')
-
+# recipe here: https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPostRecoRecipes#2018_Data_MC and here: https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaMiniAODV2#2018_MiniAOD
 from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
 
 if is2018: setupEgammaPostRecoSeq(process,
@@ -339,6 +340,7 @@ process.blackJackAndHookers = cms.EDAnalyzer('multilep',
   storePrefireComponents        = cms.untracked.bool('storePrefireComponents' in extraContent),
   storeJetSubstructure          = cms.untracked.bool('storeJetSubstructure' in extraContent),
   storeHNLgenInfo               = cms.untracked.bool('storeHNLgenInfo' in extraContent),
+  storeEFTInfo                  = cms.untracked.bool('storeEFTInfo' in extraContent),
   headerPart1                   = cms.FileInPath("heavyNeutrino/multilep/data/header/soviet.txt"),
   headerPart2                   = cms.FileInPath("heavyNeutrino/multilep/data/header/text.txt"),
 )

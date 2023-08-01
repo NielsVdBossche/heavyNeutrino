@@ -65,7 +65,8 @@ multilep::multilep(const edm::ParameterSet& iConfig):
     storeAllTauID(                                                             iConfig.getUntrackedParameter<bool>("storeAllTauID")),
     storePrefireComponents(                                                    iConfig.getUntrackedParameter<bool>("storePrefireComponents")),
     storeJetSubstructure(                                                      iConfig.getUntrackedParameter<bool>("storeJetSubstructure")),
-    storeHNLgenInfo(                                                           iConfig.getUntrackedParameter<bool>("storeHNLgenInfo"))
+    storeHNLgenInfo(                                                           iConfig.getUntrackedParameter<bool>("storeHNLgenInfo")),
+    storeEFTInfo(                                                              iConfig.getUntrackedParameter<bool>("storeEFTInfo"))
 {
     if( is2017() || is2018() ) ecalBadCalibFilterToken = consumes<bool>(edm::InputTag("ecalBadCalibReducedMINIAODFilter"));
     triggerAnalyzer       = new TriggerAnalyzer(iConfig, this);
@@ -145,7 +146,7 @@ void multilep::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm
 void multilep::beginRun(const edm::Run& iRun, edm::EventSetup const& iSetup){
     _runNb = (unsigned long) iRun.id().run();
     triggerAnalyzer->reIndex = true;                                   // HLT results could have different size/order in new run, so look up again the index positions
-    //lheAnalyzer->beginRun( iRun );
+    if( isMC() ) lheAnalyzer->beginRun( iRun );
 }
 
 // ------------ method called for each event  ------------

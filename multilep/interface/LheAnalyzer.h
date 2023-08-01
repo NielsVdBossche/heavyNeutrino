@@ -24,6 +24,18 @@ class LheAnalyzer {
     TH1D*  psCounter;
     TH1D*  tauCounter;
     TH1D*  nTrueInteractions;
+    TH1D*  eftCounter;
+    TH1D*  dynScaleCounter;
+    // todo: add counters for other variations
+
+    // need to increase range to take into account explicit alpha_s variations
+    static constexpr unsigned maxNumberOfDynScaleWeights = 38;
+    unsigned _nDynScaleWeights = 0;
+    double _dynScaleWeight[ maxNumberOfDynScaleWeights ];
+
+    static constexpr unsigned maxNumberOfEFTWeights = 37; // maybe different for larger samples? Hard to say right now
+    unsigned _nEFTWeights = 0;
+    double _eftWeight[ maxNumberOfEFTWeights ];
 
     static constexpr unsigned maxNumberOfLheWeights = 148;
     unsigned _nLheWeights = 0;
@@ -46,6 +58,10 @@ class LheAnalyzer {
     float                 _lheE[nLhe_max];
     float                 _lheMass[nLhe_max];
 
+    unsigned offsetNominalScaleVar = 37;
+    unsigned stepNominalScaleVar = 5;
+    unsigned offsetPDFVar = 84;
+
     multilep* multilepAnalyzer;
 
   public:
@@ -53,6 +69,7 @@ class LheAnalyzer {
     ~LheAnalyzer(){};
 
     void beginJob(TTree* outputTree, edm::Service<TFileService>& fs);
+    void beginRun(const edm::Run&);
     void analyze(const edm::Event&);
 };
 #endif
