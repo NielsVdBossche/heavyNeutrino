@@ -146,7 +146,7 @@ void multilep::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm
 void multilep::beginRun(const edm::Run& iRun, edm::EventSetup const& iSetup){
     _runNb = (unsigned long) iRun.id().run();
     triggerAnalyzer->reIndex = true;                                   // HLT results could have different size/order in new run, so look up again the index positions
-    if( isMC() ) lheAnalyzer->beginRun( iRun );
+    // if( isMC() ) lheAnalyzer->beginRun( iRun );
 }
 
 // ------------ method called for each event  ------------

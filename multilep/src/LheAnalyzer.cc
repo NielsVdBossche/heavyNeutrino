@@ -63,16 +63,19 @@ void LheAnalyzer::beginJob(TTree* outputTree, edm::Service<TFileService>& fs){
 }
 
 void LheAnalyzer::beginRun(const edm::Run& iRun) {
+    //edm::Handle<LHERunInfoProduct> run;
+    //iRun.getByToken(lheToken_, run);
+    //LHERunInfoProduct* myLHERunInfoProduct = run.product();
     // if (! multilepAnalyzer->storeEFTInfo)
-    edm::Handle<LHERunInfoProduct> lheRunInfo              = getHandle(iRun, multilepAnalyzer->lheEventInfoToken);
+    //edm::Handle<LHERunInfoProduct> lheRunInfo              = getHandle(iRun, "externalLHEProducer");
 
-    std::vector<LHERunInfoProduct::Header>::const_iterator it;
+    //std::vector<LHERunInfoProduct::Header>::const_iterator it;
 
-    bool localSearchFunction = [](const LHERunInfoProduct::Header& el2) {return el2.tag() == "initrwgt";};
-    it = std::find_if(lheRunInfo->headers_begin(), lheRunInfo->headers_end(), localSearchFunction);
-    // add conditions here first to find start of relevant weights, we don't care about EFT, just about what IDs are relevant for nominal lheweights -> so 1001 always, but then nondynscal ones
+    //bool localSearchFunction = [](const LHERunInfoProduct::Header& el2) {return el2.tag() == "initrwgt";};
+    //it = std::find_if(lheRunInfo->headers_begin(), lheRunInfo->headers_end(), localSearchFunction);
+    //// add conditions here first to find start of relevant weights, we don't care about EFT, just about what IDs are relevant for nominal lheweights -> so 1001 always, but then nondynscal ones
 
-    std::vector<std::string> lheConfiguration = it->lines();
+    //std::vector<std::string> lheConfiguration = it->lines();
 
     // find '<weightgroup name="mg_reweighting"' tagged as mg_reweighting. Save all weights there aside from dummy. Can add an explicit check for that
 
@@ -138,23 +141,14 @@ void LheAnalyzer::analyze(const edm::Event& iEvent){
 
     tauCounter->Fill(_nTau, _weight);
 
-    /* 
-    TODOs:
-    - Need to make sure the weighs saved in lheWeights are sensible:
-        - muR, muF=1 is central, 1001 variation
-    - Ideally 2 branches: dynamic scale and EFT
-    - dynamic scale could be 4x9 2D vector?
-    - 
-    */
+    // dirty and definitely shitty implementation of lhe weight extraction for a sample with eft reweighting. Will spend a bit more time for next round but sufficient for now
     if (multilepAnalyzer->storeEFTInfo) {
         // Fill EFT weights. Change this limit to something dynamic based on the weightgroups.
         _nEFTWeights = maxNumberOfEFTWeights;
         // CHECK: will add a blank in vector probablky
         for (unsigned i = 0; i < _nEFTWeights; i++) {
-            if (lheEventInfo->weights()[i].id == "dummy") continue;
             _eftWeight[i] = lheEventInfo->weights()[i].wgt;
-            std::cout << lheEventInfo->weights()[i].id << std::endl;
-            eftCounter->Fill(i+0.5, _eftWeight[i]*_weight)
+            eftCounter->Fill(i+0.5, _eftWeight[i]*_weight);
         }
 
         // Fill dynamic scale weights, this also includes the additional explicit alpha_s variations in the EFT MiniAODs from Robert
@@ -162,11 +156,9 @@ void LheAnalyzer::analyze(const edm::Event& iEvent){
         unsigned index_true = offsetNominalScaleVar;
         _nDynScaleWeights = maxNumberOfDynScaleWeights;
         for (unsigned i = 0; i < _nDynScaleWeights-2; i++) {
-            if (i % stepNominalScaleVar == 0) index_true++;
+            if (i % (stepNominalScaleVar-1) == 0) index_true++;
             _dynScaleWeight[i] = lheEventInfo->weights()[index_true].wgt/lheEventInfo->originalXWGTUP();
-            dynScaleCounter->Fill(i+0.5, _dynScaleWeight[i]*_weight)
-            std::cout << lheEventInfo->weights()[index_true].id << std::endl;
-
+            dynScaleCounter->Fill(i+0.5, _dynScaleWeight[i]*_weight);
             index_true++;
         }
         _dynScaleWeight[maxNumberOfDynScaleWeights-2] = lheEventInfo->weights()[82].wgt/lheEventInfo->originalXWGTUP();
@@ -177,23 +169,18 @@ void LheAnalyzer::analyze(const edm::Event& iEvent){
         // Also added an offset to take into account the EFT weights being saved first.
         _nLheWeights = maxNumberOfLheWeights;
         unsigned nominalCounter = 0;
-        for(nominalCounter = 0; nominalCounter < _nLheWeights; nominalCounter++){
+        for(nominalCounter = 0; nominalCounter < 9; nominalCounter++){
             _lheWeight[nominalCounter] = lheEventInfo->weights()[nominalCounter * stepNominalScaleVar + offsetNominalScaleVar].wgt/lheEventInfo->originalXWGTUP();
             lheCounter->Fill(nominalCounter + 0.5, _lheWeight[nominalCounter]*_weight);
-            std::cout << lheEventInfo->weights()[nominalCounter * stepNominalScaleVar + offsetNominalScaleVar].id << std::endl;
-
-            nominalCounter++;
         }
 
         // PDF weights
         // Should always be saved after all other weight variations so an offset is sufficient.
-        for(nominalCounter; nominalCounter < _nLheWeights; ++nominalCounter){
-            _lheWeight[nominalCounter] = lheEventInfo->weights()[nominalCounter+offsetPDFVar].wgt/lheEventInfo->originalXWGTUP();
+        for(; nominalCounter < _nLheWeights; ++nominalCounter){
+            _lheWeight[nominalCounter] = lheEventInfo->weights()[nominalCounter+offsetPDFVar-9].wgt/lheEventInfo->originalXWGTUP();
             lheCounter->Fill(nominalCounter + 0.5, _lheWeight[nominalCounter]*_weight);
-            std::cout << lheEventInfo->weights()[nominalCounter+offsetPDFVar].id << std::endl;
-
-            nominalCounter++;
         }
+
     } else {
         //Store LHE weights to compute pdf and scale uncertainties, as described on https://twiki.cern.ch/twiki/bin/viewauth/CMS/LHEReaderCMSSW
         _nLheWeights = std::min( maxNumberOfLheWeights, static_cast< unsigned >( lheEventInfo->weights().size() ) );
