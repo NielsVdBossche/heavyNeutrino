@@ -13,12 +13,12 @@ inputFile        = 'file:///pnfs/iihe/cms/store/user/nivanden/eft_minis/testing/
 
 # Other default arguments
 
-nEvents         = 1
+nEvents         = 100
 # extraContent    = 'storeAllTauID'
 # extraContent    = 'storeLheParticles,storeParticleLevel'
 # extraContent    = 'storeJecSources'
 # extraContent    = 'storeJecSources'
-extraContent    = 'storeLheParticles,storeParticleLevel,storeJecSourcesGrouped,storeAllTauID,storePrefireComponents,storeEFTInfo'
+extraContent    = 'storeLheParticles,storeParticleLevel,storeJecSourcesGrouped,storeAllTauID,storePrefireComponents'
 # extraContent    = ''
 
 outputFile      = 'noskim.root' # trilep    --> skim three leptons (basic pt/eta criteria)
@@ -40,7 +40,7 @@ for i in range(1,len(sys.argv)):
 
 isData = not ('SIM' in inputFile or 'heavyNeutrinoMiniAOD' in inputFile)
 is2017 = "Run2017" in inputFile or "17MiniAOD" in inputFile or 'Fall17' in inputFile
-is2018 = True # "Run2018" in inputFile or "18MiniAOD" in inputFile or 'Autumn18' in inputFile
+is2018 = "Run2018" in inputFile or "18MiniAOD" in inputFile or 'Autumn18' in inputFile
 is2016preVFP = "preVFP" in inputFile or "HIPM" in inputFile
 isSUSY = "SMS-T" in inputFile
 isFastSim = 'Fast' in inputFile

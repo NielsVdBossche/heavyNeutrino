@@ -94,9 +94,15 @@ bool PhotonAnalyzer::analyze(const edm::Event& iEvent){
         _phEtaSC[_nPh]                      = photon->superCluster()->eta();
         _phPhi[_nPh]                        = photon->phi();
         _phE[_nPh]                          = photon->energy();
-        _phCutBasedLoose[_nPh]              = photon->photonID("cutBasedPhotonID-Fall17-94X-V2-loose");
-        _phCutBasedMedium[_nPh]             = photon->photonID("cutBasedPhotonID-Fall17-94X-V2-medium");
-        _phCutBasedTight[_nPh]              = photon->photonID("cutBasedPhotonID-Fall17-94X-V2-tight");
+        try {
+            _phCutBasedLoose[_nPh]              = photon->photonID("cutBasedPhotonID-Fall17-94X-V2-loose");
+            _phCutBasedMedium[_nPh]             = photon->photonID("cutBasedPhotonID-Fall17-94X-V2-medium");
+            _phCutBasedTight[_nPh]              = photon->photonID("cutBasedPhotonID-Fall17-94X-V2-tight");
+        } catch (cms::Exception& ex) {
+            _phCutBasedLoose[_nPh]              = photon->photonID("cutBasedPhotonID_Fall17_94X_V2_loose");
+            _phCutBasedMedium[_nPh]             = photon->photonID("cutBasedPhotonID_Fall17_94X_V2_medium");
+            _phCutBasedTight[_nPh]              = photon->photonID("cutBasedPhotonID_Fall17_94X_V2_tight");
+        }
         _phMvaS16v1[_nPh]                   = photon->userFloat("PhotonMVAEstimatorRun2Spring16NonTrigV1Values");
         _phMvaF17v1p1[_nPh]                 = photon->userFloat("PhotonMVAEstimatorRunIIFall17v1p1Values");
         _phMvaF17v2[_nPh]                   = photon->userFloat("PhotonMVAEstimatorRunIIFall17v2Values");

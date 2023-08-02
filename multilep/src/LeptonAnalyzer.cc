@@ -309,14 +309,26 @@ bool LeptonAnalyzer::analyze(const edm::Event& iEvent, const reco::Vertex& prima
         _lElectronChargeConst[_nL]      = ele->isGsfCtfScPixChargeConsistent();
         _lElectronMissingHits[_nL]      = ele->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 
-        _lPOGVeto[_nL]                  = ele->electronID("cutBasedElectronID-Fall17-94X-V1-veto");
-        _lPOGLoose[_nL]                 = ele->electronID("cutBasedElectronID-Fall17-94X-V1-loose");
-        _lPOGMedium[_nL]                = ele->electronID("cutBasedElectronID-Fall17-94X-V1-medium");
-        _lPOGTight[_nL]                 = ele->electronID("cutBasedElectronID-Fall17-94X-V1-tight");
+        try {
+            _lPOGVeto[_nL]                  = ele->electronID("cutBasedElectronID-Fall17-94X-V1-veto");
+            _lPOGLoose[_nL]                 = ele->electronID("cutBasedElectronID-Fall17-94X-V1-loose");
+            _lPOGMedium[_nL]                = ele->electronID("cutBasedElectronID-Fall17-94X-V1-medium");
+            _lPOGTight[_nL]                 = ele->electronID("cutBasedElectronID-Fall17-94X-V1-tight");
 
-        _lElectronPassMVAFall17NoIsoWPLoose[_nL] = ele->electronID("mvaEleID-Fall17-noIso-V2-wpLoose");
-        _lElectronPassMVAFall17NoIsoWP90[_nL] = ele->electronID("mvaEleID-Fall17-noIso-V2-wp90");
-        _lElectronPassMVAFall17NoIsoWP80[_nL] = ele->electronID("mvaEleID-Fall17-noIso-V2-wp80");
+            _lElectronPassMVAFall17NoIsoWPLoose[_nL] = ele->electronID("mvaEleID-Fall17-noIso-V2-wpLoose");
+            _lElectronPassMVAFall17NoIsoWP90[_nL] = ele->electronID("mvaEleID-Fall17-noIso-V2-wp90");
+            _lElectronPassMVAFall17NoIsoWP80[_nL] = ele->electronID("mvaEleID-Fall17-noIso-V2-wp80");
+        } catch (cms::Exception& ex) {
+            // exception management to take care of different naming in Robert's tuples
+            _lPOGVeto[_nL]                  = ele->electronID("cutBasedElectronID_Fall17_94X_V1_veto");
+            _lPOGLoose[_nL]                 = ele->electronID("cutBasedElectronID_Fall17_94X_V1_loose");
+            _lPOGMedium[_nL]                = ele->electronID("cutBasedElectronID_Fall17_94X_V1_medium");
+            _lPOGTight[_nL]                 = ele->electronID("cutBasedElectronID_Fall17_94X_V1_tight");
+
+            _lElectronPassMVAFall17NoIsoWPLoose[_nL] = ele->electronID("mvaEleID_Fall17_noIso_V2_wpLoose");
+            _lElectronPassMVAFall17NoIsoWP90[_nL]    = ele->electronID("mvaEleID_Fall17_noIso_V2_wp90");
+            _lElectronPassMVAFall17NoIsoWP80[_nL]    = ele->electronID("mvaEleID_Fall17_noIso_V2_wp80");
+        }
 
         _lElectronSigmaIetaIeta[_nL] = ele->full5x5_sigmaIetaIeta();
         _lElectronDeltaPhiSuperClusterTrack[_nL] = fabs(ele->deltaPhiSuperClusterTrackAtVtx());
